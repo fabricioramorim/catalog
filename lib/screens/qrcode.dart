@@ -32,8 +32,9 @@ class _QrCodeGenerationScreenState extends State<QrCodeGenerationScreen> {
 
   Future<UploadTask> upload(String path) async {
     File file = File(path);
-    try{
-      String ref = 'files/${userInfo?.email}/img-${DateTime.now().toString()}.jpg';
+    try {
+      String ref =
+          'files/${userInfo?.email}/img-${DateTime.now().toString()}.jpg';
       return storage.ref(ref).putFile(file);
     } on FirebaseException catch (e) {
       throw Exception('Erro ao carregar arquivo: ${e.code}');
@@ -46,7 +47,7 @@ class _QrCodeGenerationScreenState extends State<QrCodeGenerationScreen> {
       UploadTask task = await upload(file.path);
 
       task.snapshotEvents.listen((TaskSnapshot snapshot) async {
-        if(snapshot.state == TaskState.running) {
+        if (snapshot.state == TaskState.running) {
           setState(() {
             uploading = true;
             total = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
@@ -92,9 +93,9 @@ class _QrCodeGenerationScreenState extends State<QrCodeGenerationScreen> {
             children: [
               Flexible(
                   flex: 1,
-                  child:
-                  Container(color: Colors.transparent,)
-              ),
+                  child: Container(
+                    color: Colors.transparent,
+                  )),
               Image.asset(
                 "assets/logo/logo_catalog_light.png",
                 height: 80,
@@ -111,9 +112,9 @@ class _QrCodeGenerationScreenState extends State<QrCodeGenerationScreen> {
               const SizedBox(height: 10),
               Flexible(
                   flex: 1,
-                  child:
-                  Container(color: Colors.transparent,)
-              ),
+                  child: Container(
+                    color: Colors.transparent,
+                  )),
               TextFieldC(
                 keyboardType: TextInputType.multiline,
                 maxLines: null,
@@ -131,45 +132,44 @@ class _QrCodeGenerationScreenState extends State<QrCodeGenerationScreen> {
               ),
               const SizedBox(height: 10),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly, // use whichever suits your need
+                mainAxisAlignment: MainAxisAlignment
+                    .spaceEvenly, // use whichever suits your need
                 children: [
                   FloatingActionButton.extended(
                     elevation: 1,
                     label: uploading
                         ? Text('${total.round()}% enviado')
-                        : Text('Capturar Imagem'),
+                        : const Text('Capturar Imagem'),
                     icon: uploading
                         ? const Padding(
-                        padding: EdgeInsets.only(right: 12),
-                        child: Center(
-                          child: SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 3,
-                            ),
-                          ),
-                        )
-                    )
-                        : Icon(Icons.upload),
+                            padding: EdgeInsets.only(right: 12),
+                            child: Center(
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 3,
+                                ),
+                              ),
+                            ))
+                        : const Icon(Icons.upload),
                     onPressed: pickAndUploadImage,
                   ),
                   const SizedBox(height: 10),
                   FloatingActionButton.extended(
                     elevation: 1,
                     label: const Text('Anexar arquivo'),
-                    icon: Icon(Icons.upload),
-                    onPressed: () {
-                    },
+                    icon: const Icon(Icons.upload),
+                    onPressed: () {},
                   ),
                 ],
               ),
               const SizedBox(height: 10),
               Flexible(
                   flex: 1,
-                  child:
-                  Container(color: Colors.transparent,)
-              ),
+                  child: Container(
+                    color: Colors.transparent,
+                  )),
               FloatingActionButton.extended(
                 elevation: 1,
                 label: const Text('Gerar QR Code'),
@@ -187,9 +187,9 @@ class _QrCodeGenerationScreenState extends State<QrCodeGenerationScreen> {
               ),
               Flexible(
                   flex: 3,
-                  child:
-                  Container(color: Colors.transparent,)
-              ),
+                  child: Container(
+                    color: Colors.transparent,
+                  )),
             ],
           ),
         ),
@@ -197,7 +197,6 @@ class _QrCodeGenerationScreenState extends State<QrCodeGenerationScreen> {
     );
   }
 }
-
 
 class GeneratedBarCode extends StatefulWidget {
   const GeneratedBarCode({Key? key, required this.barDataToGenerate})
@@ -540,5 +539,3 @@ class _BarcodeGenerationScreenState extends State<BarcodeGenerationScreen> {
     );
   }
 }
-
-

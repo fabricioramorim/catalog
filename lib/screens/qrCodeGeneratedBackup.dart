@@ -26,7 +26,7 @@ class _GeneratedQRCodeState extends State<GeneratedQRCode> {
   List<String> arquivos = [];
   bool loading = true;
 
-  void initState () {
+  void initState() {
     super.initState();
     loadImages();
   }
@@ -136,28 +136,35 @@ class _GeneratedQRCodeState extends State<GeneratedQRCode> {
                   },
                 ),
                 loading
-                    ? Center(child: CircularProgressIndicator(),)
+                    ? Center(
+                        child: CircularProgressIndicator(),
+                      )
                     : Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: arquivos.isEmpty
-                      ? const Center(child: Text("Não há imagens"),)
-                      : ListView.builder(
-                    itemBuilder: (BuildContext context, int index) {
-                      return ListTile(
-                        leading: SizedBox(
-                          width: 60,
-                          height: 40,
-                          child: Image.network(
-                            arquivos[index],
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        title: Text(refs[index].fullPath, style: TextStyle(color: Colors.black),),
-                      );
-                    },
-                    itemCount: arquivos.length,
-                  ),
-                ),
+                        padding: const EdgeInsets.all(24),
+                        child: arquivos.isEmpty
+                            ? const Center(
+                                child: Text("Não há imagens"),
+                              )
+                            : ListView.builder(
+                                itemBuilder: (BuildContext context, int index) {
+                                  return ListTile(
+                                    leading: SizedBox(
+                                      width: 60,
+                                      height: 40,
+                                      child: Image.network(
+                                        arquivos[index],
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    title: Text(
+                                      refs[index].fullPath,
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                  );
+                                },
+                                itemCount: arquivos.length,
+                              ),
+                      ),
                 const SizedBox(height: 15),
               ],
             ),
