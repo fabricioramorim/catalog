@@ -1,0 +1,61 @@
+name: catalog
+description: Organizando a facilidade.
+
+publish_to: 'none' 
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=2.18.2 <3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+  share_plus: ^6.2.0
+  image_picker: ^0.8.6
+  url_launcher: ^6.1.6
+  mobile_scanner: ^2.0.0
+  loading_animation_widget: ^1.2.0+3
+  syncfusion_flutter_barcodes: ^20.3.52
+  share_files_and_screenshot_widgets: ^1.0.6
+  cupertino_icons: ^1.0.2
+  cloud_firestore: ^4.0.3
+  firebase_auth: ^4.1.1
+  firebase_core: ^2.1.1
+  firebase_storage: ^11.0.5
+  google_sign_in: any
+  email_validator: ^2.1.17
+  font_awesome_flutter: any
+  provider: any
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/icons/barcode.svg
+    - assets/icons/barcode.png
+    - assets/logo/logo_catalog_full.png
+    - assets/logo/logo_catalog_dark.png
+    - assets/logo/logo_catalog_light.png
+    - assets/logo/logo_catalog_blue.png
+    - assets/logo/logo_catalog_brown.png
+
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/custom-fonts/#from-packages
