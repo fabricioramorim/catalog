@@ -218,6 +218,7 @@ class _QrCodeGenerationScreenState extends State<QrCodeGenerationScreen> {
                           storageRef: storageRef,
                           title: titleController.text.trim(),
                           description: descriptionController.text.trim(),
+                          cripto: criptoController.text.trim(),
                         ),
                       ),
                     );

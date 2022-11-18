@@ -6,17 +6,20 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:share_files_and_screenshot_widgets/share_files_and_screenshot_widgets.dart';
 import 'package:syncfusion_flutter_barcodes/barcodes.dart';
+import 'package:crypto/crypto.dart';
 
 class InputData extends StatefulWidget {
   const InputData(
       {super.key,
       required this.storageRef,
       required this.title,
-      required this.description});
+      required this.description,
+      required this.cripto});
 
   final dynamic storageRef;
   final dynamic title;
   final dynamic description;
+  final dynamic cripto;
 
   @override
   State<InputData> createState() => _InputDataState();
@@ -40,6 +43,7 @@ class _InputDataState extends State<InputData> {
     data.set({
       'user': userInfo!.uid,
       'user-mail': userInfo!.email,
+      'cripto': md5.convert(widget.cripto).toString(),
       'id': data.id,
       'downloadUrl': widget.storageRef,
       'title': widget.title,
