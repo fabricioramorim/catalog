@@ -3,14 +3,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class GoogleSignInProvider extends ChangeNotifier {
-  final googleSignIn = GoogleSignIn();
+  final googleSign = GoogleSignIn();
 
   GoogleSignInAccount? _user;
 
   GoogleSignInAccount get user => _user!;
 
   Future googleLogin() async {
-    final googleUser = await googleSignIn.signIn();
+    final googleUser = await googleSign.signIn();
     if (googleUser == null) return;
     _user = googleUser;
 
@@ -25,9 +25,9 @@ class GoogleSignInProvider extends ChangeNotifier {
 
     notifyListeners();
   }
+
   Future logout() async {
     FirebaseAuth.instance.signOut();
-    googleSignIn.disconnect();
+    googleSign.disconnect();
   }
 }
-

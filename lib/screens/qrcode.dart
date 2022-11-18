@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:catalog/screens/showItens.dart';
+import 'package:catalog/screens/show_itens.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:catalog/constants.dart';
@@ -119,16 +119,16 @@ class _QrCodeGenerationScreenState extends State<QrCodeGenerationScreen> {
                 keyboardType: TextInputType.multiline,
                 maxLines: null,
                 labelText: 'Título',
-                Icon: Icons.text_fields,
-                StateSet: qrDataTitle,
+                icon: Icons.text_fields,
+                stateSet: qrDataTitle,
               ),
               const SizedBox(height: 10),
               TextFieldC(
                 keyboardType: TextInputType.multiline,
                 maxLines: null,
                 labelText: 'Descrição',
-                Icon: Icons.description,
-                StateSet: qrDataDescription,
+                icon: Icons.description,
+                stateSet: qrDataDescription,
               ),
               const SizedBox(height: 10),
               Row(
@@ -136,6 +136,7 @@ class _QrCodeGenerationScreenState extends State<QrCodeGenerationScreen> {
                     .spaceEvenly, // use whichever suits your need
                 children: [
                   FloatingActionButton.extended(
+                    heroTag: "btn1",
                     elevation: 1,
                     label: uploading
                         ? Text('${total.round()}% enviado')
@@ -157,6 +158,7 @@ class _QrCodeGenerationScreenState extends State<QrCodeGenerationScreen> {
                   ),
                   const SizedBox(height: 10),
                   FloatingActionButton.extended(
+                    heroTag: "btn2",
                     elevation: 1,
                     label: const Text('Anexar arquivo'),
                     icon: const Icon(Icons.upload),
@@ -171,6 +173,7 @@ class _QrCodeGenerationScreenState extends State<QrCodeGenerationScreen> {
                     color: Colors.transparent,
                   )),
               FloatingActionButton.extended(
+                heroTag: "btn3",
                 elevation: 1,
                 label: const Text('Gerar QR Code'),
                 icon: const Icon(Icons.qr_code_scanner),

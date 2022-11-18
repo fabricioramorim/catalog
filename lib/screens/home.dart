@@ -28,6 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: "btn1",
         label: const Text('Escanear'),
         icon: const Icon(Icons.qr_code_scanner),
         onPressed: () {
@@ -48,16 +49,18 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Flexible(
                 flex: 1,
-                child:
-                Container(color: Colors.transparent,)
-            ),
+                child: Container(
+                  color: Colors.transparent,
+                )),
             Column(
               children: [
                 Image.asset(
                   "assets/logo/logo_catalog_full.png",
                   width: 250,
                 ),
-                const SizedBox(height: 20,),
+                const SizedBox(
+                  height: 20,
+                ),
                 const Center(
                   child: Text(
                     "Vamos lá! você é livre.",
@@ -70,12 +73,13 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             Flexible(
                 flex: 1,
-                child:
-                Container(color: Colors.transparent,)
-            ),
+                child: Container(
+                  color: Colors.transparent,
+                )),
             Column(
               children: [
                 FloatingActionButton.extended(
+                  heroTag: "btn2",
                   elevation: 1,
                   label: const Text('Gerar QR Code'),
                   icon: const Icon(Icons.qr_code_2),
@@ -88,8 +92,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   },
                 ),
-                const SizedBox(height: 20,),
+                const SizedBox(
+                  height: 20,
+                ),
                 FloatingActionButton.extended(
+                  heroTag: "btn3",
                   elevation: 1,
                   label: const Text('Gerar Código de Barras'),
                   icon: SizedBox(
@@ -109,11 +116,10 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             Flexible(
                 flex: 3,
-                child:
-                Container(color: Colors.transparent,)
-            ),
+                child: Container(
+                  color: Colors.transparent,
+                )),
             const Text(versionApp),
-
           ],
         ),
       ),

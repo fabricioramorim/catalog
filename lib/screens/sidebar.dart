@@ -1,7 +1,6 @@
-import 'package:catalog/access/googleSignIn.dart';
+import 'package:catalog/access/google_sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 
 class Sidebar extends StatefulWidget {
   const Sidebar({Key? key}) : super(key: key);
@@ -97,24 +96,23 @@ class _SidebarState extends State<Sidebar> {
               onTap: () {},
             ),
             ListTile(
-              leading: const Icon(
-                Icons.exit_to_app,
-                color: Colors.black,
-              ),
-              title: const Text(
-                'Sair',
-                style: TextStyle(
-                  fontSize: 18,
+                leading: const Icon(
+                  Icons.exit_to_app,
+                  color: Colors.black,
                 ),
-              ),
-              onTap: () {
-                final provider = Provider.of<GoogleSignInProvider>(
+                title: const Text(
+                  'Sair',
+                  style: TextStyle(
+                    fontSize: 18,
+                  ),
+                ),
+                onTap: () {
+                  final provider = Provider.of<GoogleSignInProvider>(
                     context,
                     listen: false,
-                );
-                provider.logout();
-              }
-            ),
+                  );
+                  provider.logout();
+                }),
           ],
         ),
       ),

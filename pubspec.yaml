@@ -28,6 +28,7 @@ dependencies:
   email_validator: ^2.1.17
   font_awesome_flutter: any
   provider: any
+  path_provider: ^2.0.11
 
 dev_dependencies:
   flutter_test:

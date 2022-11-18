@@ -1,4 +1,4 @@
-import 'package:catalog/access/googleSignIn.dart';
+import 'package:catalog/access/google_sign_in.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:catalog/constants.dart';

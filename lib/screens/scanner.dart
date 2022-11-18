@@ -113,8 +113,8 @@ class _ScanScreenState extends State<ScanScreen> {
                 onPressed: () {
                   pickImage();
                 },
-                label: Text("Procure na galeria")),
-            Text(versionApp)
+                label: const Text("Procure na galeria")),
+            const Text(versionApp)
           ],
         ),
       ),
@@ -222,7 +222,7 @@ class _ShowScannedDataState extends State<ShowScannedData> {
                       ),
                     ),
                     onPressed: () {
-                      launch(widget.scannedData);
+                      launchUrl(Uri.parse(widget.scannedData));
                     },
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
