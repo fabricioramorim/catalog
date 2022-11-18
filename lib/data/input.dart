@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:catalog/screens/qrcode.dart';
 import 'package:catalog/screens/sidebar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -43,7 +44,7 @@ class _InputDataState extends State<InputData> {
     data.set({
       'user': userInfo!.uid,
       'user-mail': userInfo!.email,
-      'cripto': md5.convert(widget.cripto).toString(),
+      'cripto': md5.convert(utf8.encode(widget.cripto)).toString(),
       'id': data.id,
       'downloadUrl': widget.storageRef,
       'title': widget.title,
