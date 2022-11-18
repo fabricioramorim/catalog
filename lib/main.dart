@@ -22,19 +22,20 @@ class CatalogApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-        create: (context) => GoogleSignInProvider(),
-        child: MaterialApp(
-          scaffoldMessengerKey: Utils.messengerkey,
-          navigatorKey: navigatorKey,
-          title: aplicationName,
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            fontFamily: "Open-sans",
-            useMaterial3: true,
-            colorSchemeSeed: Colors.blue,
-          ),
-          home: const CatalogRoute(),
-        ));
+      create: (context) => GoogleSignInProvider(),
+      child: MaterialApp(
+        scaffoldMessengerKey: Utils.messengerkey,
+        navigatorKey: navigatorKey,
+        title: aplicationName,
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          fontFamily: "Open-sans",
+          useMaterial3: true,
+          colorSchemeSeed: Colors.blue,
+        ),
+        home: const CatalogRoute(),
+      ),
+    );
   }
 }
 
@@ -54,11 +55,6 @@ class CatalogRoute extends StatelessWidget {
                   children: [
                     Column(
                       children: const [
-                        /*Image.asset(
-                            "assets/logo.png",
-                            height: 300,
-                            width: 300,
-                          ),*/
                         SizedBox(height: 15),
                         Text(
                           aplicationName,
@@ -92,11 +88,6 @@ class CatalogRoute extends StatelessWidget {
                   children: [
                     Column(
                       children: const [
-                        /*Image.asset(
-                            "assets/logo.png",
-                            height: 300,
-                            width: 300,
-                          ),*/
                         SizedBox(height: 15),
                         Text(
                           aplicationName,

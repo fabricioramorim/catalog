@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:catalog/screens/show_itens.dart';
+import 'package:catalog/data/input.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:catalog/constants.dart';
@@ -21,8 +21,23 @@ class _QrCodeGenerationScreenState extends State<QrCodeGenerationScreen> {
   final FirebaseStorage storage = FirebaseStorage.instance;
   final userInfo = FirebaseAuth.instance.currentUser;
 
+  final titleController = TextEditingController();
+  final descriptionController = TextEditingController();
+  final criptoController = TextEditingController();
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    descriptionController.dispose();
+    criptoController.dispose();
+
+    super.dispose();
+  }
+
   bool uploading = false;
   double total = 0;
+
+  String storageRef = '';
 
   Future<XFile?> getImage() async {
     final ImagePicker picker = ImagePicker();
@@ -30,21 +45,12 @@ class _QrCodeGenerationScreenState extends State<QrCodeGenerationScreen> {
     return image;
   }
 
-  Future<UploadTask> upload(String path) async {
-    File file = File(path);
-    try {
-      String ref =
-          'files/${userInfo?.email}/img-${DateTime.now().toString()}.jpg';
-      return storage.ref(ref).putFile(file);
-    } on FirebaseException catch (e) {
-      throw Exception('Erro ao carregar arquivo: ${e.code}');
-    }
-  }
-
   pickAndUploadImage() async {
     XFile? file = await getImage();
     if (file != null) {
-      UploadTask task = await upload(file.path);
+      String ref =
+          'files/${userInfo?.email}/img-${DateTime.now().toString()}.jpg';
+      UploadTask task = await upload(file.path, ref);
 
       task.snapshotEvents.listen((TaskSnapshot snapshot) async {
         if (snapshot.state == TaskState.running) {
@@ -53,9 +59,21 @@ class _QrCodeGenerationScreenState extends State<QrCodeGenerationScreen> {
             total = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           });
         } else if (snapshot.state == TaskState.success) {
-          setState(() => uploading = false);
+          setState(() {
+            uploading = false;
+            storageRef = file.name;
+          });
         }
       });
+    }
+  }
+
+  Future<UploadTask> upload(String path, String ref) async {
+    File file = File(path);
+    try {
+      return storage.ref(ref).putFile(file);
+    } on FirebaseException catch (e) {
+      throw Exception('Erro ao carregar arquivo: ${e.code}');
     }
   }
 
@@ -87,113 +105,126 @@ class _QrCodeGenerationScreenState extends State<QrCodeGenerationScreen> {
         body: Container(
           padding: const EdgeInsets.all(20),
           width: MediaQuery.of(context).size.width,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Flexible(
-                  flex: 1,
-                  child: Container(
-                    color: Colors.transparent,
-                  )),
-              Image.asset(
-                "assets/logo/logo_catalog_light.png",
-                height: 80,
-              ),
-              const SizedBox(height: 10),
-              const Center(
-                child: Text(
-                  "Preencha as informações abaixo",
-                  style: TextStyle(
-                    fontSize: 20,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Image.asset(
+                  "assets/logo/logo_catalog_full.png",
+                  height: 120,
+                ),
+                const SizedBox(height: 10),
+                const Center(
+                  child: Text(
+                    "Preencha as informações abaixo",
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 10),
-              Flexible(
-                  flex: 1,
-                  child: Container(
-                    color: Colors.transparent,
-                  )),
-              TextFieldC(
-                keyboardType: TextInputType.multiline,
-                maxLines: null,
-                labelText: 'Título',
-                icon: Icons.text_fields,
-                stateSet: qrDataTitle,
-              ),
-              const SizedBox(height: 10),
-              TextFieldC(
-                keyboardType: TextInputType.multiline,
-                maxLines: null,
-                labelText: 'Descrição',
-                icon: Icons.description,
-                stateSet: qrDataDescription,
-              ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment
-                    .spaceEvenly, // use whichever suits your need
-                children: [
-                  FloatingActionButton.extended(
-                    heroTag: "btn1",
-                    elevation: 1,
-                    label: uploading
-                        ? Text('${total.round()}% enviado')
-                        : const Text('Capturar Imagem'),
-                    icon: uploading
-                        ? const Padding(
-                            padding: EdgeInsets.only(right: 12),
-                            child: Center(
-                              child: SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 3,
-                                ),
-                              ),
-                            ))
-                        : const Icon(Icons.upload),
-                    onPressed: pickAndUploadImage,
-                  ),
-                  const SizedBox(height: 10),
-                  FloatingActionButton.extended(
-                    heroTag: "btn2",
-                    elevation: 1,
-                    label: const Text('Anexar arquivo'),
-                    icon: const Icon(Icons.upload),
-                    onPressed: () {},
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Flexible(
-                  flex: 1,
-                  child: Container(
-                    color: Colors.transparent,
-                  )),
-              FloatingActionButton.extended(
-                heroTag: "btn3",
-                elevation: 1,
-                label: const Text('Gerar QR Code'),
-                icon: const Icon(Icons.qr_code_scanner),
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => GeneratedQRCode(
-                        qrDataToGenerate: qrData,
-                      ),
+                const SizedBox(height: 30),
+                TextFormField(
+                  controller: titleController,
+                  keyboardType: TextInputType.multiline,
+                  maxLines: null,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15.0),
                     ),
-                  );
-                },
-              ),
-              Flexible(
-                  flex: 3,
-                  child: Container(
-                    color: Colors.transparent,
-                  )),
-            ],
+                    labelText: 'Título',
+                    prefixIcon: const Icon(
+                      Icons.text_fields,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                TextFormField(
+                  controller: descriptionController,
+                  keyboardType: TextInputType.multiline,
+                  maxLines: null,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    labelText: 'Descrição',
+                    prefixIcon: const Icon(
+                      Icons.description,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                TextFormField(
+                  controller: criptoController,
+                  obscureText: true,
+                  enableSuggestions: false,
+                  autocorrect: false,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    labelText: 'Criptografia',
+                    prefixIcon: const Icon(
+                      Icons.lock,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment
+                      .spaceEvenly, // use whichever suits your need
+                  children: [
+                    FloatingActionButton.extended(
+                      heroTag: "btn1",
+                      elevation: 1,
+                      label: uploading
+                          ? Text('${total.round()}% enviado')
+                          : const Text('Capturar Imagem'),
+                      icon: uploading
+                          ? const Padding(
+                              padding: EdgeInsets.only(right: 12),
+                              child: Center(
+                                child: SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 3,
+                                  ),
+                                ),
+                              ))
+                          : const Icon(Icons.upload),
+                      onPressed: pickAndUploadImage,
+                    ),
+                    const SizedBox(height: 15),
+                    FloatingActionButton.extended(
+                      heroTag: "btn2",
+                      elevation: 1,
+                      label: const Text('Anexar arquivo'),
+                      icon: const Icon(Icons.upload),
+                      onPressed: () {},
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 30),
+                FloatingActionButton.extended(
+                  heroTag: "btn3",
+                  elevation: 1,
+                  label: const Text('Gerar QR Code'),
+                  icon: const Icon(Icons.qr_code_scanner),
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => InputData(
+                          storageRef: storageRef,
+                          title: titleController.text.trim(),
+                          description: descriptionController.text.trim(),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
