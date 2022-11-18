@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:catalog/data/input.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:catalog/constants.dart';
@@ -75,6 +76,13 @@ class _QrCodeGenerationScreenState extends State<QrCodeGenerationScreen> {
     } on FirebaseException catch (e) {
       throw Exception('Erro ao carregar arquivo: ${e.code}');
     }
+  }
+
+  Future uploadFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'],
+    );
   }
 
   final String qrDataTitle = "";
@@ -200,7 +208,7 @@ class _QrCodeGenerationScreenState extends State<QrCodeGenerationScreen> {
                       elevation: 1,
                       label: const Text('Anexar arquivo'),
                       icon: const Icon(Icons.upload),
-                      onPressed: () {},
+                      onPressed: () => uploadFile(),
                     ),
                   ],
                 ),
