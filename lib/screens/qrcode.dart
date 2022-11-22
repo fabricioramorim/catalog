@@ -36,24 +36,31 @@ class _QrCodeGenerationScreenState extends State<QrCodeGenerationScreen> {
   }
 
   bool uploading = false;
+  bool uploadingFiles = false;
+  bool uploadingError = false;
   double total = 0;
 
-  String storageRef = '';
+  List<Map<String, String>> storageRefImages = [];
+  List<Map<String, String>> storageRefFiles = [];
+  List<XFile>? imageList = [];
 
-  Future<XFile?> getImage() async {
+  Future<XFile?> getImageAndUpload() async {
     final ImagePicker picker = ImagePicker();
+    Reference ref = storage
+        .ref()
+        .child('files/${userInfo?.uid}/images/file-${DateTime.now()}.jpg');
     XFile? image = await picker.pickImage(source: ImageSource.camera);
-    return image;
-  }
 
-  pickAndUploadImage() async {
-    XFile? file = await getImage();
-    if (file != null) {
-      String ref =
-          'files/${userInfo?.email}/img-${DateTime.now().toString()}.jpg';
-      UploadTask task = await upload(file.path, ref);
+    if (image != null) {
+      setState(() {
+        imageList!.add(image);
+        storageRefImages.add({'ref': ref.fullPath});
+      });
+    }
+    for (var i = 0; i < imageList!.length; i++) {
+      UploadTask uploadTask = ref.putFile(File(imageList![i].path));
 
-      task.snapshotEvents.listen((TaskSnapshot snapshot) async {
+      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) async {
         if (snapshot.state == TaskState.running) {
           setState(() {
             uploading = true;
@@ -62,7 +69,51 @@ class _QrCodeGenerationScreenState extends State<QrCodeGenerationScreen> {
         } else if (snapshot.state == TaskState.success) {
           setState(() {
             uploading = false;
-            storageRef = file.name;
+          });
+        } else if (snapshot.state == TaskState.error ||
+            snapshot.state == TaskState.canceled) {
+          setState(() {
+            uploadingError = true;
+          });
+        }
+      });
+    }
+    return image;
+  }
+
+  Future getFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.any,
+    );
+    return result;
+  }
+
+  pickAndUploadImage() async {
+    getImageAndUpload();
+    imageList!.clear();
+    if (uploadingError == true) {
+      return const ScaffoldMessenger(child: Text('Erro ao fazer upload'));
+    }
+  }
+
+  pickAndUploadFle() async {
+    var file = await getFile();
+    if (file != null) {
+      String ref =
+          'files/${userInfo?.uid}/files/file-${file.files.single.name}';
+      UploadTask task = await upload(file.files.single.path!, ref);
+
+      task.snapshotEvents.listen((TaskSnapshot snapshot) async {
+        if (snapshot.state == TaskState.running) {
+          setState(() {
+            uploadingFiles = true;
+            total = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          });
+        } else if (snapshot.state == TaskState.success) {
+          setState(() {
+            uploadingFiles = false;
+            storageRefFiles =
+                file.files.single.name as List<Map<String, String>>;
           });
         }
       });
@@ -78,11 +129,13 @@ class _QrCodeGenerationScreenState extends State<QrCodeGenerationScreen> {
     }
   }
 
-  Future uploadFile() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'],
-    );
+  Future<UploadTask> uploadFile(String path, String ref) async {
+    File file = File(path);
+    try {
+      return storage.ref(ref).putFile(file);
+    } on FirebaseException catch (e) {
+      throw Exception('Erro ao carregar arquivo: ${e.code}');
+    }
   }
 
   final String qrDataTitle = "";
@@ -199,16 +252,30 @@ class _QrCodeGenerationScreenState extends State<QrCodeGenerationScreen> {
                                   ),
                                 ),
                               ))
-                          : const Icon(Icons.upload),
+                          : const Icon(Icons.photo_camera),
                       onPressed: pickAndUploadImage,
                     ),
                     const SizedBox(height: 15),
                     FloatingActionButton.extended(
                       heroTag: "btn2",
                       elevation: 1,
-                      label: const Text('Anexar arquivo'),
-                      icon: const Icon(Icons.upload),
-                      onPressed: () => uploadFile(),
+                      label: uploadingFiles
+                          ? Text('${total.round()}% enviado')
+                          : const Text('Anexar arquivo'),
+                      icon: uploadingFiles
+                          ? const Padding(
+                              padding: EdgeInsets.only(right: 12),
+                              child: Center(
+                                child: SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 3,
+                                  ),
+                                ),
+                              ))
+                          : const Icon(Icons.file_upload),
+                      onPressed: () => pickAndUploadFle(),
                     ),
                   ],
                 ),
@@ -223,7 +290,7 @@ class _QrCodeGenerationScreenState extends State<QrCodeGenerationScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => InputData(
-                          storageRef: storageRef,
+                          storageRefImages: storageRefImages,
                           title: titleController.text.trim(),
                           description: descriptionController.text.trim(),
                           cripto: criptoController.text.trim(),

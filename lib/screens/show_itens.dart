@@ -1,39 +1,110 @@
 import 'dart:io';
-import 'package:catalog/screens/qrcode.dart';
+import 'package:catalog/screens/home.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:catalog/screens/sidebar.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path_provider/path_provider.dart';
 
-class GeneratedQRCode extends StatefulWidget {
-  const GeneratedQRCode({Key? key, required this.qrDataToGenerate})
-      : super(key: key);
-  final String qrDataToGenerate;
+class ShowItens extends StatefulWidget {
+  const ShowItens({Key? key, required this.scannedData}) : super(key: key);
+  final String? scannedData;
   @override
-  State<GeneratedQRCode> createState() => _GeneratedQRCodeState();
+  State<ShowItens> createState() => _ShowItensState();
 }
 
-class _GeneratedQRCodeState extends State<GeneratedQRCode> {
+class _ShowItensState extends State<ShowItens> {
   final FirebaseStorage storage = FirebaseStorage.instance;
   final userInfo = FirebaseAuth.instance.currentUser;
+  final FirebaseFirestore db = FirebaseFirestore.instance;
 
-  List<Reference> refs = [];
+  List<dynamic> refs = [];
   List<String> arquivos = [];
+  List<String> element = [];
+
   bool loading = true;
+  bool? hasDataOnDb;
 
   @override
   void initState() {
     super.initState();
     loadImages();
+    validQrCode();
   }
 
-  loadImages() async {
-    refs = (await storage.ref('files/${userInfo?.email}/').listAll()).items;
-    for (var ref in refs) {
-      arquivos.add(await ref.getDownloadURL());
+  validQrCode() async {
+    final data = await db.collection('data').doc(widget.scannedData).get();
+    if (data.exists) {
+      setState(() {
+        hasDataOnDb = true;
+        if (kDebugMode) {
+          print("AE PORRA ESSE EXISTE");
+        }
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text("Este QR Code é protegido por senha"),
+            content: const Text(
+                "Por favor, digite a senha para visualizar o conteúdo"),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {},
+                child: Column(
+                  children: [
+                    const TextField(
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Senha',
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: ButtonTheme.of(context).colorScheme?.error,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.all(14),
+                      child: const Text(
+                        "Confirmar",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      });
+    } else {
+      setState(() {
+        hasDataOnDb = false;
+        loading = false;
+        if (kDebugMode) {
+          print("FUDEU ESSE NAO EXISTE");
+        }
+      });
     }
-    setState(() => loading = false);
+    return data;
+  }
+
+  loadImages() {
+    var resultAwait = db.collection('data').snapshots();
+    resultAwait.forEach((element) {
+      element.docs.forEach((element) async {
+        if (element['id'] == widget.scannedData) {
+          for (var ref in element['storageRefImages']) {
+            arquivos.add(await storage.ref(ref['ref']).getDownloadURL());
+          }
+          setState(() {
+            loading = false;
+          });
+        }
+      });
+    });
   }
 
   deleteItens(int index) async {
@@ -68,99 +139,59 @@ class _GeneratedQRCodeState extends State<GeneratedQRCode> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-        onWillPop: () async {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const QrCodeGenerationScreen(),
+      onWillPop: () async {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const HomeScreen(),
+          ),
+        );
+        return false;
+      },
+      child: Scaffold(
+        drawer: const Sidebar(),
+        appBar: AppBar(
+          title: const Text(
+            "Catalog",
+            style: TextStyle(
+              fontSize: 22,
             ),
-          );
-          return false;
-        },
-        child: Scaffold(
-            drawer: const Sidebar(),
-            appBar: AppBar(
-              title: const Text(
-                "Catalog",
-                style: TextStyle(
-                  fontSize: 22,
-                ),
-              ),
-            ),
-            body: loading
-                ? const Center(
-                    child: CircularProgressIndicator(),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.all(15),
-                    child: arquivos.isEmpty
-                        ? const Center(
-                            child: Text("Não há imagens"),
-                          )
-                        : ListView.builder(
-                            itemBuilder: (BuildContext context, int index) {
-                              return ListTile(
-                                leading: SizedBox(
-                                  width: 120,
-                                  child: Image.network(
-                                    arquivos[index],
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(Icons.delete),
-                                      onPressed: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (ctx) => AlertDialog(
-                                            title: const Text(
-                                                "Deseja realmente exluir este item?"),
-                                            content: const Text(
-                                                "Depois de excluído, não será possível recuperar"),
-                                            actions: <Widget>[
-                                              TextButton(
-                                                onPressed: () {
-                                                  deleteItens(index);
-                                                  Navigator.of(ctx).pop();
-                                                },
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                    color:
-                                                        ButtonTheme.of(context)
-                                                            .colorScheme
-                                                            ?.error,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                  ),
-                                                  padding:
-                                                      const EdgeInsets.all(14),
-                                                  child: const Text(
-                                                    "Confirmar",
-                                                    style: TextStyle(
-                                                        color: Colors.white),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Icons.download),
-                                      onPressed: () =>
-                                          downloadFile(refs[index]),
-                                    ),
-                                  ],
-                                ),
+          ),
+        ),
+        body: loading
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : Padding(
+                padding: const EdgeInsets.all(15),
+                child: hasDataOnDb == false
+                    ? const Center(
+                        child: Text('Não há dados, escaneie um QR Code válido'),
+                      )
+                    : StreamBuilder(
+                        stream: db
+                            .collection('data')
+                            .where('id', isEqualTo: widget.scannedData)
+                            .snapshots(),
+                        builder: (BuildContext context,
+                            AsyncSnapshot<QuerySnapshot> snapshot) {
+                          if (!snapshot.hasData) {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+
+                          return ListView(
+                            children: snapshot.data!.docs.map((document) {
+                              return Container(
+                                child: Center(child: Text(document['title'])),
                               );
-                            },
-                            itemCount: arquivos.length,
-                          ),
-                  )));
+                            }).toList(),
+                          );
+                        },
+                      ),
+              ),
+      ),
+    );
   }
 }

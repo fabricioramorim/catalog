@@ -12,12 +12,12 @@ import 'package:crypto/crypto.dart';
 class InputData extends StatefulWidget {
   const InputData(
       {super.key,
-      required this.storageRef,
+      required this.storageRefImages,
       required this.title,
       required this.description,
       required this.cripto});
 
-  final dynamic storageRef;
+  final dynamic storageRefImages;
   final dynamic title;
   final dynamic description;
   final dynamic cripto;
@@ -46,7 +46,7 @@ class _InputDataState extends State<InputData> {
       'user-mail': userInfo!.email,
       'cripto': md5.convert(utf8.encode(widget.cripto)).toString(),
       'id': data.id,
-      'downloadUrl': widget.storageRef,
+      'storageRefImages': widget.storageRefImages,
       'title': widget.title,
       'description': widget.description,
     });
