@@ -81,7 +81,8 @@ class _ScanScreenState extends State<ScanScreen> {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ShowItens(scannedData: scannedData),
+                      builder: (context) => ShowItens(
+                          passwordValid: false, scannedData: scannedData),
                     ),
                   );
                 },

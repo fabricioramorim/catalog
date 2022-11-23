@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:catalog/screens/home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -9,8 +11,11 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path_provider/path_provider.dart';
 
 class ShowItens extends StatefulWidget {
-  const ShowItens({Key? key, required this.scannedData}) : super(key: key);
+  const ShowItens(
+      {Key? key, required this.scannedData, required this.passwordValid})
+      : super(key: key);
   final String? scannedData;
+  final bool? passwordValid;
   @override
   State<ShowItens> createState() => _ShowItensState();
 }
@@ -36,46 +41,35 @@ class _ShowItensState extends State<ShowItens> {
 
   validQrCode() async {
     final data = await db.collection('data').doc(widget.scannedData).get();
-    if (data.exists) {
+    final password = await db
+        .collection('data')
+        .doc(widget.scannedData)
+        .get()
+        .then((value) => value['cripto']);
+    if (data.exists && password == 'd41d8cd98f00b204e9800998ecf8427e') {
       setState(() {
         hasDataOnDb = true;
         if (kDebugMode) {
-          print("AE PORRA ESSE EXISTE");
+          print("AE PORRA ESSE EXISTE E NAO TA CRIPTOGRAFADO");
         }
-        showDialog(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: const Text("Este QR Code é protegido por senha"),
-            content: const Text(
-                "Por favor, digite a senha para visualizar o conteúdo"),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {},
-                child: Column(
-                  children: [
-                    const TextField(
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Senha',
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: ButtonTheme.of(context).colorScheme?.error,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: const EdgeInsets.all(14),
-                      child: const Text(
-                        "Confirmar",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+      });
+    } else if (data.exists && widget.passwordValid == true) {
+      setState(() {
+        if (kDebugMode) {
+          print("AE PORRA ESSE EXISTE E FOI VALIDADO");
+        }
+        hasDataOnDb = true;
+      });
+    } else if (data.exists && password != 'd41d8cd98f00b204e9800998ecf8427e') {
+      setState(() {
+        if (kDebugMode) {
+          print("AE PORRA ESSE EXISTE E TA CRIPTOGRAFADO");
+        }
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CriptoPageAuth(
+                password: password, db: db, scannedData: widget.scannedData),
           ),
         );
       });
@@ -176,7 +170,7 @@ class _ShowItensState extends State<ShowItens> {
                         builder: (BuildContext context,
                             AsyncSnapshot<QuerySnapshot> snapshot) {
                           if (!snapshot.hasData) {
-                            return Center(
+                            return const Center(
                               child: CircularProgressIndicator(),
                             );
                           }
@@ -193,5 +187,104 @@ class _ShowItensState extends State<ShowItens> {
               ),
       ),
     );
+  }
+}
+
+class CriptoPageAuth extends StatefulWidget {
+  const CriptoPageAuth(
+      {super.key,
+      required this.db,
+      required this.password,
+      required this.scannedData});
+
+  final FirebaseFirestore db;
+  final String? password;
+  final String? scannedData;
+
+  @override
+  State<CriptoPageAuth> createState() => _CriptoPageAuthState();
+}
+
+class _CriptoPageAuthState extends State<CriptoPageAuth> {
+  final passwordController = TextEditingController();
+
+  void dispose() {
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'Este QR Code \n está criptografado',
+                style: TextStyle(fontSize: 20),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              const Text('Digite a senha no campo abaixo para acessar'),
+              const SizedBox(
+                height: 50,
+              ),
+              TextFormField(
+                controller: passwordController,
+                obscureText: true,
+                enableSuggestions: false,
+                autocorrect: false,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  labelText: "Senha",
+                  prefixIcon: const Icon(
+                    Icons.lock,
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              FloatingActionButton.extended(
+                elevation: 1,
+                label: const Text('Entrar'),
+                icon: const Icon(Icons.login),
+                onPressed: passwordCheck,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> passwordCheck() async {
+    var passwordHash =
+        md5.convert(utf8.encode(passwordController.text)).toString();
+    if (widget.password == passwordHash) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ShowItens(
+            passwordValid: true,
+            scannedData: widget.scannedData,
+          ),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('Senha incorreta'),
+        ),
+      );
+    }
   }
 }
