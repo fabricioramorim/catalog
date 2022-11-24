@@ -220,7 +220,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         password: passwordConfirmController.text.trim(),
       );
     } on FirebaseAuthException catch (e) {
-      Utils.showSnackBar(e.message);
+      Utils.showSnackBar(e.message, context, Colors.red);
     }
     navigatorKey.currentState!.popUntil((route) => route.isFirst);
   }

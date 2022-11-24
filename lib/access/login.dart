@@ -1,3 +1,4 @@
+import 'package:catalog/access/forgot_passwd.dart';
 import 'package:catalog/access/google_sign_in.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -118,6 +119,11 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 20),
               GestureDetector(
                 child: const Text('Esqueceu a senha?'),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const ForgotPasswd(),
+                  ),
+                ),
               ),
               const SizedBox(height: 10),
               RichText(
@@ -200,7 +206,8 @@ class _LoginScreenState extends State<LoginScreen> {
         password: passwordController.text.trim(),
       );
     } on FirebaseAuthException catch (e) {
-      Utils.showSnackBar(e.message);
+      Utils.showSnackBar(
+          e.message ?? "Erro ao fazer login", context, Colors.red);
     }
     navigatorKey.currentState!.popUntil((route) => route.isFirst);
   }

@@ -174,11 +174,45 @@ class _ShowItensState extends State<ShowItens> {
                               child: CircularProgressIndicator(),
                             );
                           }
-
                           return ListView(
                             children: snapshot.data!.docs.map((document) {
-                              return Container(
-                                child: Center(child: Text(document['title'])),
+                              return Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Column(
+                                  children: [
+                                    Align(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        document['title'],
+                                        style: const TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        document['description'],
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    const Align(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        'Arquivos',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               );
                             }).toList(),
                           );
@@ -208,6 +242,7 @@ class CriptoPageAuth extends StatefulWidget {
 class _CriptoPageAuthState extends State<CriptoPageAuth> {
   final passwordController = TextEditingController();
 
+  @override
   void dispose() {
     passwordController.dispose();
     super.dispose();
@@ -218,7 +253,7 @@ class _CriptoPageAuthState extends State<CriptoPageAuth> {
     return Scaffold(
       body: Center(
         child: Padding(
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

@@ -10,12 +10,13 @@ class Utils {
   static final GlobalKey<ScaffoldMessengerState> messengerkey =
       GlobalKey<ScaffoldMessengerState>();
 
-  static showSnackBar(String? text) {
+  static showSnackBar(
+      String? text, BuildContext context, Color colorSnackBar) async {
     if (text == null) return;
 
     final snackBar = SnackBar(
       content: Text(text),
-      backgroundColor: Colors.red,
+      backgroundColor: colorSnackBar,
     );
 
     messengerkey.currentState!
