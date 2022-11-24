@@ -1,6 +1,6 @@
 import 'package:catalog/access/auth.dart';
 import 'package:catalog/access/google_sign_in.dart';
-import 'package:catalog/screens/home.dart';
+import 'package:catalog/access/verify_auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:catalog/constants.dart';
@@ -110,7 +110,7 @@ class CatalogRoute extends StatelessWidget {
                 ),
               );
             } else if (snapshot.hasData) {
-              return const HomeScreen();
+              return const VerifyAuth();
             } else {
               return const AuthPage();
             }
