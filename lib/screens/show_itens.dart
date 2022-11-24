@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:catalog/constants.dart';
 import 'package:catalog/screens/home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:catalog/screens/sidebar.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_file_downloader/flutter_file_downloader.dart';
 import 'package:path_provider/path_provider.dart';
 
 class ShowItens extends StatefulWidget {
@@ -108,26 +110,24 @@ class _ShowItensState extends State<ShowItens> {
     setState(() {});
   }
 
-  Future downloadFile(Reference refs) async {
-    final dir = await getApplicationDocumentsDirectory();
-    final arquivo = File('${dir.path}/${refs.name}');
-
-    try {
-      await refs.writeToFile(arquivo);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Baixado ${refs.name}'),
-        ),
-      );
-    } on FirebaseException {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Não foi possível baixar'),
-        ),
-      );
-    }
+  downloadFile(arquivo) async {
+    FileDownloader.downloadFile(
+        url: arquivo,
+        name: 'Catalog/' 'arquivo',
+        onDownloadCompleted: (String path) {
+          Utils.showSnackBar(
+            'Arquivo baixado com sucesso na sua pasta de Downloads',
+            context,
+            Colors.green,
+          );
+        },
+        onDownloadError: (String error) {
+          Utils.showSnackBar(
+            'Erro ao baixar o arquivo',
+            context,
+            Colors.red,
+          );
+        });
   }
 
   @override
@@ -174,47 +174,152 @@ class _ShowItensState extends State<ShowItens> {
                               child: CircularProgressIndicator(),
                             );
                           }
-                          return ListView(
-                            children: snapshot.data!.docs.map((document) {
-                              return Padding(
-                                padding: const EdgeInsets.all(20),
-                                child: Column(
-                                  children: [
-                                    Align(
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        document['title'],
-                                        style: const TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                          return SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                ListView(
+                                  scrollDirection: Axis.vertical,
+                                  shrinkWrap: true,
+                                  children: snapshot.data!.docs.map((document) {
+                                    return Padding(
+                                      padding: const EdgeInsets.all(20),
+                                      child: Column(
+                                        children: [
+                                          Align(
+                                            alignment: Alignment.center,
+                                            child: Text(
+                                              document['title'],
+                                              style: const TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Text(
+                                              document['description'],
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          const Align(
+                                            alignment: Alignment.center,
+                                            child: Text(
+                                              'Arquivos',
+                                              style: TextStyle(
+                                                fontSize: 18,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        document['description'],
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    const Align(
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        'Arquivos',
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                    );
+                                  }).toList(),
                                 ),
-                              );
-                            }).toList(),
+                                arquivos.isEmpty
+                                    ? const Center(
+                                        child: Text('Não há arquivos'),
+                                      )
+                                    : ListView.builder(
+                                        shrinkWrap: true,
+                                        itemCount: arquivos.length,
+                                        itemBuilder: (context, index) {
+                                          return Padding(
+                                            padding: const EdgeInsets.all(2),
+                                            child: Card(
+                                              child: SizedBox(
+                                                width: 300,
+                                                height: 150,
+                                                child: Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(15),
+                                                        child: Image.network(
+                                                          arquivos[index],
+                                                          height: 200,
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Column(
+                                                      children: [
+                                                        TextButton.icon(
+                                                          onPressed: () {
+                                                            downloadFile(
+                                                                arquivos[
+                                                                    index]);
+                                                          },
+                                                          icon: const Icon(
+                                                            Icons.download,
+                                                          ),
+                                                          label: const Text(
+                                                            'Baixar',
+                                                          ),
+                                                        ),
+                                                        TextButton.icon(
+                                                          onPressed: () {
+                                                            setState(() {
+                                                              showDialog(
+                                                                  context:
+                                                                      context,
+                                                                  builder:
+                                                                      (context) {
+                                                                    return AlertDialog(
+                                                                      title: const Text(
+                                                                          'Excluir'),
+                                                                      content:
+                                                                          const Text(
+                                                                              'Tem certeza que deseja excluir esse arquivo?'),
+                                                                      actions: [
+                                                                        TextButton(
+                                                                          onPressed:
+                                                                              () {
+                                                                            Navigator.pop(context);
+                                                                          },
+                                                                          child:
+                                                                              const Text('Não'),
+                                                                        ),
+                                                                        TextButton(
+                                                                          onPressed:
+                                                                              () {
+                                                                            deleteItens(index);
+                                                                            Navigator.pop(context);
+                                                                          },
+                                                                          child:
+                                                                              const Text('Sim'),
+                                                                        ),
+                                                                      ],
+                                                                    );
+                                                                  });
+                                                            });
+                                                          },
+                                                          icon: const Icon(
+                                                            Icons.delete,
+                                                          ),
+                                                          label: const Text(
+                                                            'Excluir',
+                                                            style: TextStyle(),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                              ],
+                            ),
                           );
                         },
                       ),
