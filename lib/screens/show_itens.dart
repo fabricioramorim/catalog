@@ -1,16 +1,13 @@
-import 'dart:convert';
-import 'dart:io';
 import 'package:catalog/constants.dart';
+import 'package:catalog/screens/cripto_auth.dart';
 import 'package:catalog/screens/home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:catalog/screens/sidebar.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_file_downloader/flutter_file_downloader.dart';
-import 'package:path_provider/path_provider.dart';
 
 class ShowItens extends StatefulWidget {
   const ShowItens(
@@ -26,10 +23,13 @@ class _ShowItensState extends State<ShowItens> {
   final FirebaseStorage storage = FirebaseStorage.instance;
   final userInfo = FirebaseAuth.instance.currentUser;
   final FirebaseFirestore db = FirebaseFirestore.instance;
+  late dynamic snapshotLoad;
 
   List<dynamic> refs = [];
-  List<String> arquivos = [];
+  List<String> images = [];
+  List<String> files = [];
   List<String> element = [];
+  List<dynamic> dataList = [];
 
   bool loading = true;
   bool? hasDataOnDb;
@@ -37,10 +37,18 @@ class _ShowItensState extends State<ShowItens> {
   @override
   void initState() {
     super.initState();
+    setSnapshot();
     loadImages();
+    loadFiles();
     validQrCode();
   }
 
+//FUNÇÃO RESPONSÁVEL POR INICIAR O SNAPSHOT
+  Future setSnapshot() async {
+    snapshotLoad = await db.collection('data').doc(widget.scannedData).get();
+  }
+
+//FUNÇÃO RESPONSÁVEL POR VALIDAR O QR CODE E VERIFICAR SE O USUÁRIO TEM PERMISSÃO PARA ACESSAR O CONTEÚDO
   validQrCode() async {
     final data = await db.collection('data').doc(widget.scannedData).get();
     final password = await db
@@ -87,13 +95,14 @@ class _ShowItensState extends State<ShowItens> {
     return data;
   }
 
+//FUNÇÃO RESPONSÁVEL POR CARREGAR AS IMAGENS DO FIREBASE STORAGE
   loadImages() {
-    var resultAwait = db.collection('data').snapshots();
-    resultAwait.forEach((element) {
+    var resultAwaitImages = db.collection('data').snapshots();
+    resultAwaitImages.forEach((element) {
       element.docs.forEach((element) async {
         if (element['id'] == widget.scannedData) {
           for (var ref in element['storageRefImages']) {
-            arquivos.add(await storage.ref(ref['ref']).getDownloadURL());
+            images.add(await storage.ref(ref['ref']).getDownloadURL());
           }
           setState(() {
             loading = false;
@@ -103,31 +112,326 @@ class _ShowItensState extends State<ShowItens> {
     });
   }
 
+//FUNÇÃO RESPONSÁVEL POR CARREGAR OS ARQUIVOS DO FIREBASE STORAGE
+  loadFiles() {
+    var resultAwaitFiles = db.collection('data').snapshots();
+    resultAwaitFiles.forEach((element) {
+      element.docs.forEach((element) async {
+        if (element['id'] == widget.scannedData) {
+          for (var ref in element['storageRefFiles']) {
+            files.add(await storage.ref(ref['ref']).getDownloadURL());
+          }
+          setState(() {
+            loading = false;
+          });
+        }
+      });
+    });
+  }
+
+//FUNÇÃO RESPONSÁVEL POR EXCLUIR OS ARQUIVOS DO FIREBASE STORAGE
   deleteItens(int index) async {
     await storage.ref(refs[index].fullPath).delete();
-    arquivos.removeAt(index);
+    images.removeAt(index);
     refs.removeAt(index);
     setState(() {});
   }
 
-  downloadFile(arquivo) async {
+//FUNÇÃO RESPONSÁVEL POR BAIXAR OS ARQUIVOS DO FIREBASE STORAGE
+  downloadFile(x) async {
     FileDownloader.downloadFile(
-        url: arquivo,
-        name: 'Catalog/' 'arquivo',
-        onDownloadCompleted: (String path) {
-          Utils.showSnackBar(
-            'Arquivo baixado com sucesso na sua pasta de Downloads',
-            context,
-            Colors.green,
+      url: x,
+      name: 'Catalog/' 'arquivo',
+      onDownloadCompleted: (String path) {
+        Utils.showSnackBar(
+          'Arquivo baixado com sucesso na sua pasta de Downloads',
+          context,
+          Colors.green,
+        );
+      },
+      onDownloadError: (String error) {
+        Utils.showSnackBar(
+          'Erro ao baixar o arquivo',
+          context,
+          Colors.red,
+        );
+      },
+    );
+  }
+
+//FUNÇÃO RESPONSÁVEL POR GERAR O STREAMBUILDER
+  listStreamBuilder() {
+    return StreamBuilder(
+      stream: db
+          .collection('data')
+          .where('id', isEqualTo: widget.scannedData)
+          .snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(
+            child: CircularProgressIndicator(),
           );
-        },
-        onDownloadError: (String error) {
-          Utils.showSnackBar(
-            'Erro ao baixar o arquivo',
-            context,
-            Colors.red,
-          );
-        });
+        }
+        return SingleChildScrollView(
+          child: Column(
+            children: [
+              listDescription(snapshot),
+              images.isEmpty
+                  ? const Center(
+                      child: Text('Não há images'),
+                    )
+                  : listImages(),
+              files.isEmpty
+                  ? const Center(
+                      child: Text('Não há arquivos'),
+                    )
+                  : listFile(),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+//FUNÇÃO RESPONSÁVEL POR LISTAR A DESCRIÇÃO DO QR CODE
+  listDescription(AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
+    return ListView(
+      scrollDirection: Axis.vertical,
+      shrinkWrap: true,
+      children: snapshot.data!.docs.map((document) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Align(
+                alignment: Alignment.center,
+                child: Text(
+                  document['title'],
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  document['description'],
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              const Align(
+                alignment: Alignment.center,
+                child: Text(
+                  'Arquivos',
+                  style: TextStyle(
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+//FUNÇÃO RESPONSÁVEL POR LISTAR AS IMAGENS NO LISTVIEW
+  listImages() {
+    return SizedBox(
+      height: 320,
+      child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          shrinkWrap: true,
+          itemCount: images.length,
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: const EdgeInsets.all(6),
+              child: SizedBox(
+                width: 230,
+                child: Card(
+                  clipBehavior: Clip.antiAlias,
+                  child: Column(
+                    children: [
+                      AspectRatio(
+                        aspectRatio: 10 / 7,
+                        child: Image.network(
+                          images[index],
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.image),
+                        title: Text('Imagem ${index + 1}'),
+                        subtitle: Text(
+                          'Cloud Catalog ',
+                          style:
+                              TextStyle(color: Colors.black.withOpacity(0.6)),
+                        ),
+                      ),
+                      ButtonBar(
+                        alignment: MainAxisAlignment.start,
+                        children: [
+                          TextButton.icon(
+                            onPressed: () {
+                              downloadFile(images[index]);
+                            },
+                            icon: const Icon(
+                              Icons.download,
+                            ),
+                            label: const Text(
+                              'Baixar',
+                            ),
+                          ),
+                          TextButton.icon(
+                            onPressed: () {
+                              setState(() {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        title: const Text('Excluir'),
+                                        content: const Text(
+                                            'Tem certeza que deseja excluir esse arquivo?'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                            child: const Text('Não'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () {
+                                              deleteItens(index);
+                                              Navigator.pop(context);
+                                            },
+                                            child: const Text('Sim'),
+                                          ),
+                                        ],
+                                      );
+                                    });
+                              });
+                            },
+                            icon: const Icon(
+                              Icons.delete,
+                            ),
+                            label: const Text(
+                              'Excluir',
+                              style: TextStyle(),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+    );
+  }
+
+//FUNÇÃO RESPONSÁVEL POR LISTAR OS ARQUIVOS NO LISTVIEW
+  listFile() {
+    return SizedBox(
+      height: 320,
+      child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          shrinkWrap: true,
+          itemCount: files.length,
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: const EdgeInsets.all(6),
+              child: SizedBox(
+                width: 230,
+                child: Card(
+                  clipBehavior: Clip.antiAlias,
+                  child: Column(
+                    children: [
+                      /* AspectRatio(
+                        aspectRatio: 10 / 7,
+                        child: Image.network(
+                          images[index],
+                          fit: BoxFit.cover,
+                        ),
+                      ),*/
+                      ListTile(
+                        leading: const Icon(Icons.file_open),
+                        title: Text(
+                          snapshotLoad.data()!['storageRefFiles'][index]
+                              ['name'],
+                        ),
+                        subtitle: Text(
+                          'Cloud Catalog ',
+                          style:
+                              TextStyle(color: Colors.black.withOpacity(0.6)),
+                        ),
+                      ),
+                      ButtonBar(
+                        alignment: MainAxisAlignment.start,
+                        children: [
+                          TextButton.icon(
+                            onPressed: () {
+                              downloadFile(files[index]);
+                            },
+                            icon: const Icon(
+                              Icons.download,
+                            ),
+                            label: const Text(
+                              'Baixar',
+                            ),
+                          ),
+                          TextButton.icon(
+                            onPressed: () {
+                              setState(() {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        title: const Text('Excluir'),
+                                        content: const Text(
+                                            'Tem certeza que deseja excluir esse arquivo?'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                            child: const Text('Não'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () {
+                                              deleteItens(index);
+                                              Navigator.pop(context);
+                                            },
+                                            child: const Text('Sim'),
+                                          ),
+                                        ],
+                                      );
+                                    });
+                              });
+                            },
+                            icon: const Icon(
+                              Icons.delete,
+                            ),
+                            label: const Text(
+                              'Excluir',
+                              style: TextStyle(),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+    );
   }
 
   @override
@@ -146,7 +450,7 @@ class _ShowItensState extends State<ShowItens> {
         drawer: const Sidebar(),
         appBar: AppBar(
           title: const Text(
-            "Catalog",
+            aplicationName,
             style: TextStyle(
               fontSize: 22,
             ),
@@ -162,269 +466,9 @@ class _ShowItensState extends State<ShowItens> {
                     ? const Center(
                         child: Text('Não há dados, escaneie um QR Code válido'),
                       )
-                    : StreamBuilder(
-                        stream: db
-                            .collection('data')
-                            .where('id', isEqualTo: widget.scannedData)
-                            .snapshots(),
-                        builder: (BuildContext context,
-                            AsyncSnapshot<QuerySnapshot> snapshot) {
-                          if (!snapshot.hasData) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-                          return SingleChildScrollView(
-                            child: Column(
-                              children: [
-                                ListView(
-                                  scrollDirection: Axis.vertical,
-                                  shrinkWrap: true,
-                                  children: snapshot.data!.docs.map((document) {
-                                    return Padding(
-                                      padding: const EdgeInsets.all(20),
-                                      child: Column(
-                                        children: [
-                                          Align(
-                                            alignment: Alignment.center,
-                                            child: Text(
-                                              document['title'],
-                                              style: const TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                          Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Text(
-                                              document['description'],
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                          const Align(
-                                            alignment: Alignment.center,
-                                            child: Text(
-                                              'Arquivos',
-                                              style: TextStyle(
-                                                fontSize: 18,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  }).toList(),
-                                ),
-                                arquivos.isEmpty
-                                    ? const Center(
-                                        child: Text('Não há arquivos'),
-                                      )
-                                    : ListView.builder(
-                                        shrinkWrap: true,
-                                        itemCount: arquivos.length,
-                                        itemBuilder: (context, index) {
-                                          return Padding(
-                                            padding: const EdgeInsets.all(2),
-                                            child: Card(
-                                              child: SizedBox(
-                                                width: 300,
-                                                height: 150,
-                                                child: Row(
-                                                  children: [
-                                                    Expanded(
-                                                      child: ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(15),
-                                                        child: Image.network(
-                                                          arquivos[index],
-                                                          height: 200,
-                                                          fit: BoxFit.cover,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Column(
-                                                      children: [
-                                                        TextButton.icon(
-                                                          onPressed: () {
-                                                            downloadFile(
-                                                                arquivos[
-                                                                    index]);
-                                                          },
-                                                          icon: const Icon(
-                                                            Icons.download,
-                                                          ),
-                                                          label: const Text(
-                                                            'Baixar',
-                                                          ),
-                                                        ),
-                                                        TextButton.icon(
-                                                          onPressed: () {
-                                                            setState(() {
-                                                              showDialog(
-                                                                  context:
-                                                                      context,
-                                                                  builder:
-                                                                      (context) {
-                                                                    return AlertDialog(
-                                                                      title: const Text(
-                                                                          'Excluir'),
-                                                                      content:
-                                                                          const Text(
-                                                                              'Tem certeza que deseja excluir esse arquivo?'),
-                                                                      actions: [
-                                                                        TextButton(
-                                                                          onPressed:
-                                                                              () {
-                                                                            Navigator.pop(context);
-                                                                          },
-                                                                          child:
-                                                                              const Text('Não'),
-                                                                        ),
-                                                                        TextButton(
-                                                                          onPressed:
-                                                                              () {
-                                                                            deleteItens(index);
-                                                                            Navigator.pop(context);
-                                                                          },
-                                                                          child:
-                                                                              const Text('Sim'),
-                                                                        ),
-                                                                      ],
-                                                                    );
-                                                                  });
-                                                            });
-                                                          },
-                                                          icon: const Icon(
-                                                            Icons.delete,
-                                                          ),
-                                                          label: const Text(
-                                                            'Excluir',
-                                                            style: TextStyle(),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
+                    : listStreamBuilder(),
               ),
       ),
     );
-  }
-}
-
-class CriptoPageAuth extends StatefulWidget {
-  const CriptoPageAuth(
-      {super.key,
-      required this.db,
-      required this.password,
-      required this.scannedData});
-
-  final FirebaseFirestore db;
-  final String? password;
-  final String? scannedData;
-
-  @override
-  State<CriptoPageAuth> createState() => _CriptoPageAuthState();
-}
-
-class _CriptoPageAuthState extends State<CriptoPageAuth> {
-  final passwordController = TextEditingController();
-
-  @override
-  void dispose() {
-    passwordController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Este QR Code \n está criptografado',
-                style: TextStyle(fontSize: 20),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(
-                height: 15,
-              ),
-              const Text('Digite a senha no campo abaixo para acessar'),
-              const SizedBox(
-                height: 50,
-              ),
-              TextFormField(
-                controller: passwordController,
-                obscureText: true,
-                enableSuggestions: false,
-                autocorrect: false,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  labelText: "Senha",
-                  prefixIcon: const Icon(
-                    Icons.lock,
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              FloatingActionButton.extended(
-                elevation: 1,
-                label: const Text('Entrar'),
-                icon: const Icon(Icons.login),
-                onPressed: passwordCheck,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> passwordCheck() async {
-    var passwordHash =
-        md5.convert(utf8.encode(passwordController.text)).toString();
-    if (widget.password == passwordHash) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ShowItens(
-            passwordValid: true,
-            scannedData: widget.scannedData,
-          ),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          backgroundColor: Colors.red,
-          content: Text('Senha incorreta'),
-        ),
-      );
-    }
   }
 }

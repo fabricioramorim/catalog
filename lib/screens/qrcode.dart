@@ -43,18 +43,24 @@ class _QrCodeGenerationScreenState extends State<QrCodeGenerationScreen> {
   List<Map<String, String>> storageRefImages = [];
   List<Map<String, String>> storageRefFiles = [];
   List<XFile>? imageList = [];
+  List<XFile>? fileList = [];
 
   Future<XFile?> getImageAndUpload() async {
     final ImagePicker picker = ImagePicker();
-    Reference ref = storage
-        .ref()
-        .child('files/${userInfo?.uid}/images/file-${DateTime.now()}.jpg');
+    final uploadName = 'file-${DateTime.now()}.jpg';
+    Reference ref =
+        storage.ref().child('files/${userInfo?.uid}/images/$uploadName');
     XFile? image = await picker.pickImage(source: ImageSource.camera);
 
     if (image != null) {
       setState(() {
         imageList!.add(image);
-        storageRefImages.add({'ref': ref.fullPath});
+        storageRefImages.add({
+          'ref': ref.fullPath,
+          'name': image.name,
+          'uploadName': uploadName,
+          'date': DateTime.now().toString(),
+        });
       });
     }
     for (var i = 0; i < imageList!.length; i++) {
@@ -97,27 +103,41 @@ class _QrCodeGenerationScreenState extends State<QrCodeGenerationScreen> {
   }
 
   pickAndUploadFle() async {
-    var file = await getFile();
-    if (file != null) {
+    var fileBefore = await getFile();
+    XFile? file = XFile(fileBefore!.files.single.path!);
+    if (fileBefore != null) {
       String ref =
-          'files/${userInfo?.uid}/files/file-${file.files.single.name}';
-      UploadTask task = await upload(file.files.single.path!, ref);
+          'files/${userInfo?.uid}/files/file-${fileBefore.files.single.name}';
 
-      task.snapshotEvents.listen((TaskSnapshot snapshot) async {
-        if (snapshot.state == TaskState.running) {
-          setState(() {
-            uploadingFiles = true;
-            total = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      if (fileBefore != null) {
+        setState(() {
+          fileList!.add(file);
+          storageRefFiles.add({
+            'ref': ref,
+            'name': fileBefore.files.single.name,
+            'date': DateTime.now().toString()
           });
-        } else if (snapshot.state == TaskState.success) {
-          setState(() {
-            uploadingFiles = false;
-            storageRefFiles =
-                file.files.single.name as List<Map<String, String>>;
-          });
-        }
-      });
+        });
+      }
+
+      for (var i = 0; i < fileList!.length; i++) {
+        UploadTask task = await uploadFile(fileBefore.files.single.path!, ref);
+
+        task.snapshotEvents.listen((TaskSnapshot snapshot) async {
+          if (snapshot.state == TaskState.running) {
+            setState(() {
+              uploadingFiles = true;
+              total = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            });
+          } else if (snapshot.state == TaskState.success) {
+            setState(() {
+              uploadingFiles = false;
+            });
+          }
+        });
+      }
     }
+    return file;
   }
 
   Future<UploadTask> upload(String path, String ref) async {
@@ -290,6 +310,7 @@ class _QrCodeGenerationScreenState extends State<QrCodeGenerationScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => InputData(
+                          storageRefFiles: storageRefFiles,
                           storageRefImages: storageRefImages,
                           title: titleController.text.trim(),
                           description: descriptionController.text.trim(),

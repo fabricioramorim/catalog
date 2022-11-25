@@ -12,11 +12,13 @@ import 'package:crypto/crypto.dart';
 class InputData extends StatefulWidget {
   const InputData(
       {super.key,
+      required this.storageRefFiles,
       required this.storageRefImages,
       required this.title,
       required this.description,
       required this.cripto});
 
+  final dynamic storageRefFiles;
   final dynamic storageRefImages;
   final dynamic title;
   final dynamic description;
@@ -47,6 +49,7 @@ class _InputDataState extends State<InputData> {
       'cripto': md5.convert(utf8.encode(widget.cripto)).toString(),
       'id': data.id,
       'storageRefImages': widget.storageRefImages,
+      'storageRefFiles': widget.storageRefFiles,
       'title': widget.title,
       'description': widget.description,
     });
