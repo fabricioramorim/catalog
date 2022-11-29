@@ -1,3 +1,4 @@
+import 'package:catalog/access/auth.dart';
 import 'package:catalog/access/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -114,6 +115,12 @@ class _SidebarState extends State<Sidebar> {
                   );
                   provider.logout();
                   FirebaseAuth.instance.signOut();
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AuthPage(),
+                    ),
+                  );
                 }),
           ],
         ),

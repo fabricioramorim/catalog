@@ -353,6 +353,15 @@ class _ShowItensState extends State<ShowItens> {
                   clipBehavior: Clip.antiAlias,
                   child: Column(
                     children: [
+                      const Padding(
+                        padding: EdgeInsets.all(20),
+                        child: Icon(
+                          Icons.attach_file,
+                          size: 80,
+                          color: Colors.grey,
+                        ),
+                      ),
+
                       /* AspectRatio(
                         aspectRatio: 10 / 7,
                         child: Image.network(
