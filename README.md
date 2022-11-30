@@ -116,6 +116,13 @@ Após configurado e realizado o login com sua conta através do comando `Firebas
 
 Com isso ele estará apto a ser executado em emuladores androids fisicos ou virtuais que poderão ser escolhidos através do comando `flutter devices` e logo após executado em `flutter run`.
 
+Nota: <br>
+Atente-se se as permissões abaixo estão concedidas em seu arquivo `/android/src/main/AndroidManifest.xml`.
+
+`<uses-permission android:name="android.permission.INTERNET"/>`<br>
+`<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />`<br>
+`<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>`
+
 ## Atualizações:
 
 Estou trabalhando no momento com a adição da tela de edição do conteúdo gerado no primeiro QR Code.
