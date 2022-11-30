@@ -104,3 +104,27 @@ Abaixo as funcionalidades já implementadas:
 - Login e-mail e senha
 - Criação de usuário com Google
 - Criação de usuário com e-mail e senha e validação de e-mail
+- Share de QR Code pós emissão
+- Download de arquivos anexados
+- Forgot password
+- Scan de arquivos com avisos para QR Codes não oficiais
+- Validação de campos e verificação de informações válidas com mensagem de erro instantânea
+- Logout multiplo, destroi sessão independente do método de login
+- Scan com a possibilidade de progurar arquivos da galeria
+
+Abaixo as funcionalidades a serem implementadas:
+
+- Firebase App Distribution
+- Firebase Remote Config
+- Firebase A/B Testing
+- Firebase App Check
+- Google Functions para criação de tumbmail automatizada com gatilho de inserção de imagem no Bucket
+- Quota de QR Codes por usúario
+- Quota de anexos por usuário
+- Versão Web
+- Versão IOS
+
+
+
+
+
