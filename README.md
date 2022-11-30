@@ -1,3 +1,5 @@
+<img src="https://user-images.githubusercontent.com/38993485/204864300-bd8ed9ab-0a8d-4c1d-a1b4-9bcc7998bcb8.png" height="100">
+
 # Catalog
 
 Organizando a facilidade.
