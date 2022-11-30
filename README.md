@@ -111,6 +111,7 @@ Abaixo as funcionalidades já implementadas:
 - Validação de campos e verificação de informações válidas com mensagem de erro instantânea
 - Logout multiplo, destroi sessão independente do método de login
 - Scan com a possibilidade de progurar arquivos da galeria
+- Design Material 3
 
 Abaixo as funcionalidades a serem implementadas:
 
