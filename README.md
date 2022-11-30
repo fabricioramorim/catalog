@@ -38,3 +38,7 @@ O sistema de autenticação atual conta com duas formas de registro e entrada, s
 }
 ]}
 ```
+
+O cadastro de usuários por e-mail conta com verificação de endereço de e-mail no arquivo `/lib/access/verify_auth.dart` que envia um e-mail com o código de verificação através da utulização da função `sendEmailVerification()` do próprio `FirebaseAuth`.
+
+
