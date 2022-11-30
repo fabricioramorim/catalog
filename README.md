@@ -74,7 +74,7 @@ A estrutura abaixo é gerada assim que criado um novo QR Code ou Barcode na apli
       "user": "ID_DO_USUARIO_QUE_CRIOU",
       "user-mail": "EMAIL_DO_USUARIO_QUE_CRIOU"
     }
-}}
+}
 ```
 
 ## Configuração de ambiente:
