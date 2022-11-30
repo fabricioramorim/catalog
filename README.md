@@ -46,49 +46,33 @@ A estrutura abaixo é gerada assim que criado um novo QR Code ou Barcode na apli
 
 ```JSON
 {
-    "0YEEpriC4FswFggnYgOO": {
-      "cripto": "202cb962ac59075b964b07152d234b70",
+    "ID_UNICO_DO_QR_CODE": {
+      "cripto": "SENHA_QR_CODE_CRIPTOGRAFADA",
       "description": "Contem:\n\n1 teclado\n1 PC",
-      "id": "0YEEpriC4FswFggnYgOO",
+      "id": "ID",
       "storageRefFiles": [
         {
           "date": "2022-11-25 19:20:00.068436",
-          "name": "IMG-20221125-WA0023.jpg",
-          "ref": "files/Vx9oJZ6J1ENAbqTqQ27gORxrrJ92/files/file-IMG-20221125-WA0023.jpg"
+          "name": "IMG-20221125-WA0023.pdf",
+          "ref": "URL_DO_ARQUIVO_NO_BUCKET"
         },
         {
           "date": "2022-11-25 19:20:08.100944",
-          "name": "IMG-20221125-WA0024.jpg",
-          "ref": "files/Vx9oJZ6J1ENAbqTqQ27gORxrrJ92/files/file-IMG-20221125-WA0024.jpg"
+          "name": "IMG-20221125-WA0024.pdf",
+          "ref": "URL_DO_ARQUIVO_NO_BUCKET"
         }
       ],
       "storageRefImages": [
         {
           "date": "2022-11-25 19:18:28.890317",
           "name": "a38097ee-fef5-4aab-83ab-162ee60082463212782715081280763.jpg",
-          "ref": "files/Vx9oJZ6J1ENAbqTqQ27gORxrrJ92/images/file-2022-11-25 19:18:18.393960.jpg",
+          "ref": "URL_DA_IMAGEM_NO_BUCKET",
           "uploadName": "file-2022-11-25 19:18:18.393960.jpg"
         }
       ],
       "title": "Teste 1",
-      "user": "Vx9oJZ6J1ENAbqTqQ27gORxrrJ92",
-      "user-mail": "oggimrm@gmail.com"
-    },
-    "3xtKFfcHBCPI3TGXFdDB": {
-      "cripto": "202cb962ac59075b964b07152d234b70",
-      "description": "Contem:\n\n20 copos\n2 garrafas",
-      "id": "3xtKFfcHBCPI3TGXFdDB",
-      "storageRefImages": [
-        {
-          "ref": "files/Vx9oJZ6J1ENAbqTqQ27gORxrrJ92/images/file-2022-11-22 11:54:10.642461.jpg"
-        },
-        {
-          "ref": "files/Vx9oJZ6J1ENAbqTqQ27gORxrrJ92/images/file-2022-11-22 11:54:23.362418.jpg"
-        }
-      ],
-      "title": "Caixa 1",
-      "user": "Vx9oJZ6J1ENAbqTqQ27gORxrrJ92",
-      "user-mail": "oggimrm@gmail.com"
+      "user": "ID_DO_USUARIO_QUE_CRIOU",
+      "user-mail": "EMAIL_DO_USUARIO_QUE_CRIOU"
     }
 }}
 ```
