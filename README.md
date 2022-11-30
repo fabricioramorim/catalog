@@ -1,3 +1,4 @@
+![Optimized-translucent_3d_logo_mockup](https://user-images.githubusercontent.com/38993485/204806819-891e3ac6-e4ce-4a96-bc07-84af436ec0f4.png)
 # Catalog
 
 Organizando a facilidade.
