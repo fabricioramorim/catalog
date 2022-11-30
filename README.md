@@ -87,3 +87,20 @@ Após configurado e realizado o login com sua conta através do comando `Firebas
 
 Com isso ele estará apto a ser executado em emuladores androids fisicos ou virtuais que poderão ser escolhidos através do comando `flutter devices` e logo após executado em `flutter run`.
 
+## Atualizações:
+
+Estou trabalhando no momento com a adição da tela de edição do conteúdo gerado no primeiro QR Code.
+
+Abaixo as funcionalidades já implementadas:
+
+- Firebase Crashalitics
+- Firebase Performance
+- Firebase Analitics
+- Firebase Authentication
+- Criação de QR Codes
+- Anexo de multiplos arquivos e Documentos
+- Criação de criptografia nos QR Codes
+- Login Google
+- Login e-mail e senha
+- Criação de usuário com Google
+- Criação de usuário com e-mail e senha e validação de e-mail
