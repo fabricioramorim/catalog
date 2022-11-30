@@ -94,7 +94,7 @@ Estou trabalhando no momento com a adição da tela de edição do conteúdo ger
 
 Abaixo as funcionalidades já implementadas:
 
-- Firebase Crashalitics
+- Firebase Crashalytics
 - Firebase Performance
 - Firebase Analitics
 - Firebase Authentication
