@@ -82,6 +82,7 @@ A estrutura abaixo é gerada assim que criado um novo QR Code ou Barcode na apli
 A configuração deste aplicativo em outro ambiente é bem simples basta ter o `Flutter` e o `Firebase` com o `FlutterFire` instalados na máquina que executou o download deste repositório.
 
 Após é necessário que configure seu ambiente Firebase que pode ser encontrado na documentação do mesmo https://firebase.google.com/docs/flutter/setup?platform=android
+Depois de configurado é necessário que crie no Firebase o Authenticator com as Keys da sua máquina e o Firestore Storage e Database com a regra `allow read, write: if true;` que dará permissão de inserção no banco de dados.
 
 Após configurado e realizado o login com sua conta através do comando `Firebase login` é necessário que rode o comando `Flutter pub get` no diretório que está a aplicação, este comando fará com que todas as dependências sejam instaladas.
 
