@@ -125,6 +125,25 @@ Abaixo as funcionalidades a serem implementadas:
 - Versão Web
 - Versão IOS
 
+## PrintScreens do app
+
+Tela de login:
+
+<img src="https://user-images.githubusercontent.com/38993485/204807982-e5eea307-a051-4d92-bd7b-08b0b676effe.jpeg" height="500">
+
+Tela de início:
+
+<img src="https://user-images.githubusercontent.com/38993485/204808041-283c7f0b-d010-4c21-87fb-20ab2f066e42.jpeg" height="500">
+
+Tela para gerar QR Code:
+
+<img src="https://user-images.githubusercontent.com/38993485/204808062-9406a4a8-0459-4df5-ae11-2f58efa7e8ad.jpeg" height="500">
+
+Tela para escanear QR Code:
+
+<img src="https://user-images.githubusercontent.com/38993485/204808067-bceb2476-c52b-4232-a4e8-441d4337d255.jpeg" height="500">
+
+
 ![Optimized-translucent_3d_logo_mockup](https://user-images.githubusercontent.com/38993485/204806819-891e3ac6-e4ce-4a96-bc07-84af436ec0f4.png)
 
 
