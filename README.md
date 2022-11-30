@@ -78,6 +78,32 @@ A estrutura abaixo é gerada assim que criado um novo QR Code ou Barcode na apli
     }
 }
 ```
+## Dependências:
+
+Os packages abaxo são necessários para determinadas funções na aplicação, poderá saber mais de cada um através do site `pub.dev`
+
+- flutter_lints: ^2.0.0
+- share_plus: ^6.2.0
+- image_picker: ^0.8.6
+- url_launcher: ^6.1.6
+- mobile_scanner: ^2.0.0
+- loading_animation_widget: ^1.2.0+3
+- syncfusion_flutter_barcodes: ^20.3.52
+- share_files_and_screenshot_widgets: ^1.0.6
+- cupertino_icons: ^1.0.2
+- cloud_firestore: ^4.0.3
+- firebase_auth: ^4.1.1
+- firebase_core: ^2.1.1
+- firebase_storage: ^11.0.5
+- google_sign_in: any
+- email_validator: ^2.1.17
+- font_awesome_flutter: any
+- provider: any
+- path_provider: ^2.0.11
+- crypto: ^3.0.2
+- file_picker: ^5.2.2
+- flutter_file_downloader: ^1.1.0+1
+- firebase_crashlytics: ^3.0.6
 
 ## Configuração de ambiente:
 
